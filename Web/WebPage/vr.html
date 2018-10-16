@@ -1,0 +1,19 @@
+<html>
+<head>
+	<script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+</head>
+<body>
+	<a-scene>
+		<a-assets>
+			<!-- 画像を表示 -->
+			<img id="sky" src="img/test360-2.jpg">
+			<!-- 動画をループ再生する -->
+			<!-- <video id="video" src="../video.mp4" loop="true"></video> -->
+		</a-assets>
+		<!-- 全天球背景 -->
+		<a-sky src="#sky"></a-sky>
+		<!-- <a-videosphere src="#video"></a-videosphere> -->
+		<a-entity id="camera" camera look-controls></a-entity>
+	</a-scene>
+</body>
+</html>

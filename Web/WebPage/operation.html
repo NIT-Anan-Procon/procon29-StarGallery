@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>StarGallery</title>
+	<link href="./css/operation.css" rel="stylesheet">
+	<link href="./css/button.css" rel="stylesheet">
+	<script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+	<!-- 本番 -->
+	<!-- <script src="https://star-party.anan-nct.ac.jp/socket.io/socket.io.js"></script> -->
+	<!--  テスト用（ローカル） -->
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="/js/operation.js"></script>
+	<script type="text/javascript" src="./js/chat.js"></script>
+</head>
+<body>
+	<div class="video">
+		<h2>牟岐町第2カメラ</h2>
+		<video id="remote_video" autoplay ></video>
+	</div>
+	<aside class="operate">
+		<textarea id="time_limit" rows="1" cols="5" readonly></textarea>
+
+		<button id="connect" type="button">connect</button>
+		<!-- データチャネルテスト用 -->
+		<!-- <p>data to send:<br />
+			<textarea id="pushData" rows="5" cols="20"></textarea>
+			<br />
+			<button id="push" type="button">pushText</button>
+		</p> -->
+		<p>
+			<textarea id="catchData" rows="5" cols="20" readonly></textarea>
+		</p>
+		<!-- <textarea></textarea> -->
+		<br>
+		<input type="radio" name="lens" id="wide_angle" checked><label for="wide_angle">広角</label>
+		<input type="radio" name="lens" id="telephoto"><label for="telephoto">望遠</label>
+		<br>
+		<div id="pinto">
+			ピント調節
+			<div>
+				<button id="">
+					<svg height="10" width="10">
+		  		<polygon points="0,10 5,0 10,10" style="fill:black;cursor:pointer" /></svg>
+				</button>
+			</div>
+			<div>
+				<button id="">
+					<svg height="10" width="10">
+		  		<polygon points="0,0 5,10 10,0" style="fill:black;cursor:pointer" /></svg>
+				</button>
+			</div>
+	</div>
+		<!-- <input id="focus" type=range name="focus" value="100" min="1" max="100" step="1"> -->
+		<div id="speed-control">
+		<p>速度調節</p>
+		<br>
+		<div id="small">
+			<div><input type="radio" name="angle" checked>極小</div>
+			<div><input type="radio" name="angle">少々</div>
+			<div><input type="radio" name="angle">小</div>
+		</div>
+		<div id="big">
+			<div><input type="radio" name="angle">中</div>
+			<div><input type="radio" name="angle">大</div>
+			<div><input type="radio" name="angle">極大</div>
+		</div>
+		<!-- <input id="speed" type=range name="speed" value="4" min="1" max="4" step="1"> -->
+	</div>
+		<br>
+		<div class="cross-layout">
+			<input id="up" class="btn position-top" type=button name="move" value=" ">
+			<input id="left" class="btn position-left" type=button name="move" value=" ">
+			<input id="right" class="btn position-right" type=button name="move" value=" ">
+			<input id="down" class="btn position-bottom" type=button name="move" value=" ">
+		</div>
+		<textarea id="chatArea" cols="30" rows="15" readonly></textarea>
+		<br>
+		<div class="chat">
+			<form id="message_form">
+				<input type="text" id="message" size="100" placeholder="コメントを入力して下さい"/><button>送信</button>
+			</form>
+		</div>
+		<button id="video-page"><a href="view.html">動画視聴</a></button>
+	</aside>
+	<script type="text/javascript" src="./js/webrtc.js"></script>
+</body>
+</html>

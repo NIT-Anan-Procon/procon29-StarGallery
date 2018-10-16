@@ -1,0 +1,405 @@
+<!doctype html>
+<html>
+
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ <title>Host Signaling</title>
+ <script src="http://localhost:3002/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+	Hand Signaling 2016<br />
+	<button type="button" onclick="startVideo();">Start Video</button>
+	<button type="button" onclick="stopVideo();">Stop Video</button>
+	&nbsp;
+	<button type="button" onclick="connect();">Connect</button>
+	<button type="button" onclick="hangUp();">Hang Up</button>
+	<div>
+        <video id="local_video" autoplay style="width: 160px; height: 120px; border: 1px solid black;"></video>
+        <video id="local_video2" autoplay style="width: 160px; height: 120px; border: 1px solid black;"></video>
+	</div>
+	<p>Log<br />
+		<textarea id="logList" rows="5" cols="60" readonly></textarea>
+	</p>
+	<p>Data to send:<br />
+		<textarea id="pushData" rows="5" cols="60"></textarea>
+		<button type="button" onclick="pushText();">pushText</button><br />
+	</p>
+	<p>
+		<textarea id="catchData" rows="5" cols="60" readonly></textarea>
+	</p>
+</body>
+<script type="text/javascript">
+    // let localVideo = document.getElementById('local_video');
+	let localVideo = [];
+    localVideo[0] = document.getElementById('local_video');
+    localVideo[1] = document.getElementById('local_video2');
+    // let localStream = null;
+    let localStream = [];
+    localStream[0] = null;
+    localStream[1] = null;
+	let peerConnection = null;
+	var datachannel_operate = null;
+    var datachannel_message = null;
+	let textToReceiveSdp = null;
+    let camera = "wide_angle";
+
+	let port = 3002;
+	var socket = io.connect('http://localhost:' + port + '/');
+	socket.on('connect', function(evt) {
+		console.log('socket open()');
+	});
+	socket.on('error', function(err) {
+		console.error('socket error:', err);
+	});
+
+	socket.on('message', function(evt) {
+		console.log('socket message data:', evt);
+		let message = JSON.parse(evt);
+		if (message.type === 'offer') {
+			// -- got offer ---
+			console.log('Received offer ...');
+			textToReceiveSdp = message.sdp;
+			let offer = new RTCSessionDescription(message);
+			setOffer(offer);
+		}
+		else if (message.type === 'answer') {
+			// --- got answer ---
+			console.log('Received answer ...');
+			textToReceiveSdp = message.sdp;
+			let answer = new RTCSessionDescription(message);
+			setAnswer(answer);
+		}
+		else if (message.type === 'candidate') {
+			// --- got ICE candidate ---
+			console.log('Received ICE candidate ...');
+			let candidate = new RTCIceCandidate(message.ice);
+			console.log(candidate);
+			addIceCandidate(candidate);
+		}
+	});
+
+	function addIceCandidate(candidate) {
+		if (peerConnection) {
+			peerConnection.addIceCandidate(candidate);
+		}
+		else {
+			console.error('PeerConnection not exist!');
+			return;
+		}
+	}
+	// --- prefix -----
+	navigator.getUserMedia  = navigator.getUserMedia    || navigator.webkitGetUserMedia ||
+								navigator.mozGetUserMedia || navigator.msGetUserMedia;
+	RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+	RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription;
+
+	// ---------------------- media handling -----------------------
+	// start local video
+	function startVideo() {
+		let device = navigator.mediaDevices.enumerateDevices();
+		console.log(device);
+		// const mediaoption1 = {video:{deviceId: "bd1a5923582ffb4591ab2426306191b570691b0072e3d2497730d03117c700a7"}, audio: false};	//多田のPCカメラ
+        const mediaoption1 = {video:{deviceId: "dcc95661855f6945ec37597b4e5219f40afa3f458841c5de82f7202dc3875516"}, audio: false};	//logicoolのwebカメラ
+		const mediaoption2 = {video:{deviceId: "5b649f11f6b97cf2565b48eb896b49e21e164a21d496b03556538e532b71b72c"}, audio: false};	//skyris618M
+        // const mediaoption = {video:true, audio:false};
+        getDeviceStream(mediaoption1)
+		.then(function (stream) { // success
+			localStream[0] = stream;
+			console.log(stream);
+            playVideo(localVideo[0], stream);
+		}).catch(function (error) { // error
+			console.error('getUserMedia error:', error);
+			return;
+		});
+        getDeviceStream(mediaoption2)
+        .then(function (stream) { // success
+            localStream[1] = stream;
+            console.log(stream);
+            playVideo(localVideo[1], stream);
+        }).catch(function (error) { // error
+            console.error('getUserMedia error:', error);
+            return;
+        });
+	}
+
+	// stop local video
+	function stopVideo() {
+		pauseVideo(localVideo[0]);
+        pauseVideo(localVideo[1]);
+        stopLocalStream(localStream[0]);
+		stopLocalStream(localStream[1]);
+	}
+
+	function stopLocalStream(stream) {
+		let tracks = stream.getTracks();
+		if (! tracks) {
+			console.warn('NO tracks');
+			return;
+		}
+		for (let track of tracks) {
+			track.stop();
+		}
+	}
+
+	function getDeviceStream(option) {
+		if ('getUserMedia' in navigator.mediaDevices) {
+			console.log('navigator.mediaDevices.getUserMadia');
+			return navigator.mediaDevices.getUserMedia(option);
+		}
+		else {
+			console.log('wrap navigator.getUserMadia with Promise');
+			return new Promise(function(resolve, reject){
+				navigator.getUserMedia(option,
+					resolve,
+					reject
+				);
+			});
+		}
+	}
+
+	function playVideo(element, stream) {
+		if ('srcObject' in element) {
+			element.srcObject = stream;
+		}
+		else {
+			element.src = window.URL.createObjectURL(stream);
+		}
+		element.play();
+		element.volume = 0;
+	}
+
+	function pauseVideo(element) {
+		element.pause();
+		if ('srcObject' in element) {
+			element.srcObject = null;
+		}
+		else {
+			if (element.src && (element.src !== '') ) {
+				window.URL.revokeObjectURL(element.src);
+			}
+			element.src = '';
+		}
+	}
+
+	function sendSdp(sessionDescription) {
+		console.log('---sending sdp ---');
+		// --- シグナリングサーバーに送る ---
+		let message = JSON.stringify(sessionDescription);
+		console.log('sending SDP=' + message);
+		socket.emit('message', message);
+	}
+
+	// ---------------------- connection handling -----------------------
+	function prepareNewConnection() {
+		let pc_config = {"iceServers":[]};
+		var peer = new RTCPeerConnection(pc_config);
+		// --- on get remote stream ---
+		if ('ontrack' in peer) {
+			peer.ontrack = function(event) {
+				console.log('-- peer.ontrack()');
+			};
+		}
+		else {
+			peer.onaddstream = function(event) {
+				console.log('-- peer.onaddstream()');
+			};
+		}
+
+		// --- on get local ICE candidate
+		peer.onicecandidate = function (evt) {
+			if (evt.candidate) {
+				console.log(evt.candidate);
+				// Vanilla ICE の場合には、何もしない
+			} else {
+				console.log('empty ice event');
+			}
+		};
+
+        // -- add local stream --
+
+        if (localStream[0] && camera == "wide_angle") {
+            console.log('Adding local stream...');
+            peer.addStream(localStream[0]);
+        }
+
+        else if(localStream[1] && camera == "telephoto"){
+            console.log('Adding local stream...');
+            peer.addStream(localStream[1]);
+        }
+        else {
+            console.warn('no local stream, but continue.');
+        }
+		return peer;
+	}
+
+	function makeOffer() {
+		peerConnection = prepareNewConnection();
+		datachannel_operate = peerConnection.createDataChannel("operate");
+        // datachannel_message = peerConnection.createDataChannel("message");
+
+		datachannel_operate.onmessage = function (event) {
+            console.log(event);
+            document.getElementById('catchData').value += event.data + "\n";
+            printLog(event.data);
+            if(event.data == "telephoto" || event.data == "wide_angle"){
+                if(event.data == "telephoto"){
+                    camera = "telephoto";
+                    hangUp();
+                    connect();
+                }
+                else {
+                    camera = "wide_angle";
+                    hangUp();
+                    connect();
+                }
+            }
+		};
+		datachannel_operate.onopen = function () {
+			console.log("datachannel open");
+		};
+		datachannel_operate.onclose = function () {
+			console.log("datachannel close");
+		};
+
+        peerConnection.createOffer()
+        .then(function (sessionDescription) {
+            console.log('createOffer() succsess in promise');
+            return peerConnection.setLocalDescription(sessionDescription);
+        }).then(function() {
+            console.log('setLocalDescription() succsess in promise');
+
+            // -- Trickle ICE の場合は、初期SDPを相手に送る --
+            // -- Vanilla ICE の場合には、まだSDPは送らない --
+            sendSdp(peerConnection.localDescription);
+        }).catch(function(err) {
+            console.error(err);
+        });
+	}
+	function setOffer(sessionDescription) {
+		if (peerConnection) {
+			console.error('peerConnection alreay exist!');
+		}
+		peerConnection = prepareNewConnection();
+		peerConnection.setRemoteDescription(sessionDescription)
+		.then(function() {
+			console.log('setRemoteDescription(offer) succsess in promise');
+			makeAnswer();
+		}).catch(function(err) {
+			console.error('setRemoteDescription(offer) ERROR: ', err);
+		});
+	}
+
+	function makeAnswer() {
+		console.log('sending Answer. Creating remote session description...' );
+		if (! peerConnection) {
+			console.error('peerConnection NOT exist!');
+			return;
+		}
+		peerConnection.createAnswer()
+		.then(function (sessionDescription) {
+			console.log('createAnswer() succsess in promise');
+			return peerConnection.setLocalDescription(sessionDescription);
+		}).then(function() {
+			console.log('setLocalDescription() succsess in promise');
+			peerConnection.ondatachannel = function(evt) {
+				datachannel_operate = evt.channel;
+				datachannel_operate.onmessage = function (event) {
+					console.log("received: " + event.data);
+                    document.getElementById('catchData').value += event.data + "\n";
+                    if(event.data == "telephoto" || event.data == "wide_angle"){
+                        if(event.data == "telephoto"){
+                            room = "telephoto";
+                            hangUp();
+                            stopVideo();
+                            startVideo();
+                            connect();
+                        }
+                    }
+				};
+				datachannel_operate.onopen = function () {
+					console.log("datachannel open");
+				};
+
+				datachannel_operate.onclose = function () {
+					console.log("datachannel close");
+				};
+			}
+			sendSdp(peerConnection.localDescription);
+		}).catch(function(err) {
+			console.error(err);
+		});
+	}
+
+	function setAnswer(sessionDescription) {
+		if (! peerConnection) {
+			console.error('peerConnection NOT exist!');
+			return;
+		}
+
+		peerConnection.setRemoteDescription(sessionDescription)
+		.then(function() {
+			console.log('setRemoteDescription(answer) succsess in promise');
+		}).catch(function(err) {
+			console.error('setRemoteDescription(answer) ERROR: ', err);
+		});
+	}
+
+    function pushText() {
+        let data = document.getElementById('pushData');
+		datachannel_operate.send(data.value);
+		console.log('Sent Data: ' + data.value);
+		data.value = "";
+    }
+
+	// start PeerConnection
+	function connect() {
+		if (! peerConnection) {
+			console.log('make Offer');
+			makeOffer();
+		}
+		else {
+			console.warn('peer already exist.');
+		}
+	}
+
+	// close PeerConnection
+	function hangUp() {
+		if (peerConnection) {
+			console.log('Hang up.');
+			peerConnection.close();
+			peerConnection = null;
+		}
+		else {
+			console.warn('peer NOT exist.');
+		}
+	}
+
+	function printLog() {
+		let textarea_id = 'logList';
+		let string = "";
+		for(let i = 0; i < arguments.length; i++){
+			string += arguments[i];
+		}
+		addStringToTextarea(textarea_id, string);
+	}
+
+	// 送られてきたデータを画面に表示
+	function printData(){
+		let textarea_id = 'catchDataList';
+		let string = "";
+		for(let i = 0; i < arguments.length; i++){
+			string += arguments[i];
+		}
+		addStringToTextarea(textarea_id, string);
+	}
+
+	// テキストエリアに文字を追加
+	function addStringToTextarea(id, string){
+		const area = document.getElementById(id);
+		area.value += string + "\n";
+		// テキストエリアを一番下までスクロールする
+		area.scrollTop = area.scrollHeight;
+	}
+</script>
+</html>

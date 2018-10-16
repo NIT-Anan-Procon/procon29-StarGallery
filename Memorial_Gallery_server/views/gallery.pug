@@ -1,0 +1,9 @@
+html
+    head
+        title Photo Library
+        link(rel='stylesheet', href="/memorial/style/style.css")
+    body
+        each photo in PhotoData
+            center 
+                .frame
+                    img(src="/memorial/gallery/" + photo.filename)

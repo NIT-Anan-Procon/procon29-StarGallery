@@ -1,0 +1,14 @@
+.frame {
+	display: inline-block;
+	position: relative;
+}
+
+img {
+    width: 65%;
+	display: block;
+    margin: 15px 0 35px 0;
+}
+
+body {
+    background-image: url("/memorial/style/board.jpg"); 
+}

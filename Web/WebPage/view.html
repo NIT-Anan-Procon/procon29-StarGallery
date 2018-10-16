@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Star Gallery</title>
+	<link href="./css/gallery.css" rel="stylesheet">
+	<script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+	<h1>ライブ配信</h1>
+	<div class="video">
+		<div>○○市　東の空</div>
+		<iframe src="https://www.youtube.com/embed/UQt2iLKqBbI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+	</div>
+	<aside class="operate">
+		<textarea id="chatArea" cols="30" rows="50" readonly></textarea>
+		<input type="text"placeholder="コメント...">
+		<input type="submit"value="送信">
+		<div class="live">
+			<button id="live-button">
+				<a href="index.html" class="fl_inst2">
+					<i class="fa fa-instagram"></i> 地域選択
+				</a>
+			</button>
+			<button id="live-button">
+				<a href="authorization.html" class="fl_inst2">
+					<i class="fa fa-instagram"></i>カメラ操作へ
+				</a>
+			</button>
+		</div>
+	</aside>
+</body>
+</html>

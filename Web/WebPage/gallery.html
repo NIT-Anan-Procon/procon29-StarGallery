@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Star Gallery</title>
+  	<link href="css/gallery.css" rel="stylesheet">
+		<!-- <link href="./css/button.css" rel="stylesheet"> -->
+		<script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript" src="./js/chat.js"></script>
+		</script>
+	</head>
+	<body>
+		<h1>Starギャラリー</h1>
+		<div class="video">
+			<div>○○市　東の空</div>
+
+				<!-- VRで星空表示 -->
+			<iframe src="vr.html"></iframe>
+			<br>
+			<button id="left-button"><</button>
+			<button id="right-button">></button>
+		</div>
+
+		<aside class="operate">
+			<textarea id="chatArea" cols="30" rows="50" readonly></textarea>
+			<input type="text"placeholder="コメント...">
+			<input type="submit"value="送信">
+			<div class="live">
+				<button id="live-button">
+					<a href="index.html" class="fl_inst2">
+						<i class="fa fa-instagram"></i> 地域選択
+					</a>
+				</button>
+				<button id="live-button">
+					<a href="view.html" class="fl_inst2">
+						<i class="fa fa-instagram"></i> ライブ配信
+					</a>
+				</button>
+			</div>
+		</aside>
+	</body>
+</html>

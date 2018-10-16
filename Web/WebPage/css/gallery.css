@@ -1,0 +1,72 @@
+html,body{
+	width: 100%;
+	height: 99%;
+	text-align: center;
+	/* overflow: hidden; */
+	margin: 0;
+}
+h1{
+	width: 60%;
+	margin: 10px auto;
+	text-align: center;
+	background-color: #f0e68c;
+  border: 3px solid #ffff00;
+	border-radius: 10px;
+}
+.video{
+	position: relative;
+	width: 75%;
+	height: 90%;
+	margin-left: 2%;
+	float: left;
+}
+.video > button{
+	position: absolute;
+	height: 20%;
+	top: 40%;
+}
+#left-button{
+	left: 3%;
+}
+#right-button{
+	right: 3%;
+}
+iframe{
+	width: 100%;
+	height: 90%;
+	margin-bottom: 30px;
+}
+.operate{
+	width: 20%;
+	height: 85%;
+	float: right;
+}
+#chatArea{
+	overflow: scroll;
+	margin-top:10%;
+	width: 80%;
+	height: 75%;
+}
+input[type=text]{
+	width: 60%;
+	margin-right: 10px;
+	border: none;
+	border-bottom: 1px solid gray;
+}
+input[type=submit]{
+	clear: both;
+	width: 20%;
+	border: 1px solid skyblue;
+	border-radius: 5px;
+}
+#live-button{
+	margin: 10px 0;
+	width: 15vw;
+	height: 8vh;
+	border: 1px solid skyblue;
+	border-radius: 5px;
+}
+.fl_inst2{
+	font-size:2vw;
+	text-decoration: none;
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Host Signaling</title>
+	<script type="text/javascript" src="./js/index.js"></script>
+	<!-- 本番用socket.io -->
+	<!-- <script src="https://star-party.anan-nct.ac.jp/socket.io/socket.io.js"></script> -->
+	<!-- ローカルテスト用socket.io -->
+	<script src="http://localhost:3002/socket.io/socket.io.js"></script><!-- ローカルテスト用 -->
+	<script type="text/javascript" src="./js/webrtc.js"></script>
+</head>
+
+<body>
+	Hand Signaling StarParty<br />
+	<button type="button" onclick="startVideo();">Start Video</button>
+	<button type="button" onclick="stopVideo();">Stop Video</button>
+	&nbsp;
+	<button type="button" onclick="connect();">Connect</button>
+	<button type="button" onclick="hangUp();">Hang Up</button>
+	<div>
+		<canvas id="wide_angle" width="160" height="120"></canvas>
+		<video id="telephoto" autoplay style="width: 160px; height: 120px; border: 1px solid black;"></video>
+
+	</div>
+	<p>Log<br />
+		<textarea id="logList" rows="5" cols="100" readonly></textarea>
+	</p>
+	<p>Data to send:<br />
+		<textarea id="pushData" rows="5" cols="100"></textarea><br />
+		<button type="button" onclick="pushText();">pushText</button><br />
+	</p>
+	<p>
+		<textarea id="catchDataList" rows="5" cols="100"></textarea>
+	</p>
+	<script type="text/javascript" src="./js/websocket.js"></script>
+
+</body>
+
+
+
+</html>
